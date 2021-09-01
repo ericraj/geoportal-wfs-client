@@ -98,19 +98,30 @@
                 .then((res) => {
                   console.log(`:>> res.data`, res.data)
 
-                  /* affichage de la popup */
-                  const message =
-                    geojson.features.length == 0
-                      ? 'Parcelle non trouvée'
-                      : 'Parcelle id : ' +
-                        geojson.features[0].properties.idu +
-                        `, Zone : ${
-                          res && res.data && res.data.zonePrincipale
-                            ? res.data.zonePrincipale.libelle
-                            : 'null'
-                        }`
+                  axios
+                    .get(
+                      `https://apicarto.ign.fr/api/gpu/zone-urba?geom={"type": "Point","coordinates":[${res.data.lon},${res.data.lat}]}`
+                    )
+                    .then(({ data }) => {
+                      console.log(`data`, data)
 
-                  showPopup(e.latlng, message)
+                      /* affichage de la popup */
+                      const message =
+                        geojson.features.length == 0
+                          ? 'Parcelle non trouvée'
+                          : 'Parcelle id : ' +
+                            geojson.features[0].properties.idu +
+                            `, Zone : ${
+                              data &&
+                              data.features &&
+                              data.features[0] &&
+                              data.features[0].properties
+                                ? data.features[0].properties.libelle
+                                : 'null'
+                            }`
+
+                      showPopup(e.latlng, message)
+                    })
                 })
             }
             /* rendu des parcelles */
